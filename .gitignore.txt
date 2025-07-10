@@ -1,0 +1,6 @@
+.import/
+.godot/
+export_presets.cfg
+*.tmp
+*.converted.res
+*.converted.scn

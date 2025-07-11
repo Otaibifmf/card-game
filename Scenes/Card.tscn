@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://Card.gd" id="1_ysm4x"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xoqcj"]
-size = Vector2(58, 80)
+size = Vector2(56, 78)
 
 [node name="Card" type="Node2D"]
 script = ExtResource("1_ysm4x")

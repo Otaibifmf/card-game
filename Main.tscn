@@ -11,8 +11,8 @@ position = Vector2(1, 0)
 script = ExtResource("1_g18sq")
 
 [node name="PlayerHand" type="Node2D" parent="."]
-position = Vector2(687, 481)
+position = Vector2(482, 322)
 script = ExtResource("2_5e2s4")
 
 [node name="CardSlot" parent="." instance=ExtResource("4_qv620")]
-position = Vector2(781, 698)
+position = Vector2(794, 570)

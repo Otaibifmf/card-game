@@ -33,9 +33,12 @@ func _ready() -> void:
 
 
 func add_card_to_hand(card):
-	player_hand.insert(0, card)
-	set_card_width()
-	update_hand_positions()
+	if card not in player_hand:
+		player_hand.insert(0, card)
+		set_card_width()
+		update_hand_positions()
+	else:
+		animate_card_to_position(card, card.hand_position)
 
 
 func update_hand_positions():
@@ -43,6 +46,7 @@ func update_hand_positions():
 		var new_position = Vector2(calculate_card_position(i), HAND_Y_POSITION)
 		var card = player_hand[i]
 		print("Card position:", card.position, " global:", card.global_position)
+		card.hand_position = new_position
 		animate_card_to_position(card, new_position)
 
 func calculate_card_position(index):
@@ -58,3 +62,8 @@ func animate_card_to_position(card, new_position):
 	
 func set_card_width():
 	card_width = max(250 - (HAND_COUNT * 10),100)
+
+func remove_card_from_hand(card):
+	if card in player_hand:
+		player_hand.erase(card)
+		update_hand_positions()

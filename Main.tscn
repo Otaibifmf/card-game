@@ -6,7 +6,7 @@
 [node name="Main" type="Node2D"]
 
 [node name="CardManager" type="Node2D" parent="."]
-position = Vector2(670, 336)
+position = Vector2(679, 336)
 script = ExtResource("1_g18sq")
 
 [node name="Card" parent="CardManager" instance=ExtResource("2_mpv81")]

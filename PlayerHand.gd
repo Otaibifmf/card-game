@@ -6,11 +6,31 @@ const HAND_Y = 600
 const HAND_CENTER_X = 640
 const CARD_WIDTH = 140
 
+const POSSIBLE_TARGETS = [22, 23, 24, 25, 26, 27, 28, 29, 30]
+var TARGET_TOTAL = 25  # will be set randomly on _ready
+
+var rank_values = {
+	"ace": 1,
+	"two": 2,
+	"three": 3,
+	"four": 4,
+	"five": 5,
+	"six": 6,
+	"seven": 7,
+	"eight": 8,
+	"nine": 9,
+	"ten": 10
+}
+
 var cards = []
 var selected_cards = []
 var card_scene = preload("res://Scenes/Card.tscn")
 
 func _ready():
+	randomize()
+	TARGET_TOTAL = POSSIBLE_TARGETS[randi() % POSSIBLE_TARGETS.size()]
+	print("🎯 Target total this game:", TARGET_TOTAL)
+
 	var deck = get_node("../Deck")
 	if deck == null:
 		push_error("Deck not found. Make sure it's named 'Deck' and is a sibling of PlayerHand.")
@@ -33,21 +53,26 @@ func _ready():
 		discard_button.disabled = true
 		discard_button.pressed.connect(_on_discard_pressed)
 
+	var win_label = get_node("../WinLabel")
+	if win_label:
+		win_label.visible = false
+
 func _create_card_from_data(card_data):
+	print("Card data received:", card_data)
 	var card = card_scene.instantiate()
 	add_child(card)
 	card.position = Vector2(-500, HAND_Y)
 	card.card_data = card_data
 
 	var sprite = card.get_node("CardImage")
-	if sprite == null:
-		print("❌ CardImage node not found in card scene!")
-	else:
-		var tex = load(card_data.sprite_path)
+	if sprite:
+		var tex = load(card_data.get("sprite_path", ""))
 		if tex:
 			sprite.texture = tex
 		else:
-			print("⚠️ Missing texture:", card_data.sprite_path)
+			print("⚠️ Missing texture:", card_data.get("sprite_path", ""))
+	else:
+		print("❌ CardImage node not found in card scene!")
 
 	card.pressed.connect(_on_card_pressed)
 	card.hovered.connect(_on_card_hovered)
@@ -99,6 +124,28 @@ func _update_discard_button_state():
 	var discard_button = get_node("../DiscardButton")
 	discard_button.disabled = selected_cards.is_empty()
 
+func calculate_hand_total() -> int:
+	var total = 0
+	for card in cards:
+		if typeof(card.card_data) == TYPE_DICTIONARY:
+			var name_str = card.card_data.get("name", "")
+			if name_str == "":
+				print("⚠️ Empty name in card_data!")
+				continue
+
+			var parts = name_str.split(" ")
+			if parts.size() >= 1:
+				var rank = parts[0].to_lower()
+				if rank_values.has(rank):
+					total += rank_values[rank]
+				else:
+					print("⚠️ Unknown rank:", rank)
+			else:
+				print("⚠️ Couldn't parse rank from name:", name_str)
+		else:
+			print("⚠️ card_data is NOT a dictionary!")
+	return total
+
 func _on_discard_pressed():
 	if selected_cards.is_empty():
 		return
@@ -125,3 +172,15 @@ func _on_discard_pressed():
 
 	_update_card_positions()
 	_update_discard_button_state()
+
+	var hand_total = calculate_hand_total()
+	print("🧮 DEBUG Hand total:", hand_total, " Target:", TARGET_TOTAL)
+
+	if hand_total == TARGET_TOTAL:
+		print("🎉 You win! Total is", TARGET_TOTAL)
+		var win_label = get_node("../WinLabel")
+		if win_label:
+			win_label.text = "🎉 You win! Total is " + str(TARGET_TOTAL)
+			win_label.visible = true
+	else:
+		print("Keep discarding to reach", TARGET_TOTAL)

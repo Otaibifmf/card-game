@@ -1,125 +1,124 @@
 extends Node2D
 
-const COLLISION_MASK_CARD = 1
-const COLLISION_MASK_CARD_SLOT = 2
+const HAND_COUNT = 5
+const MAX_SELECTION = 2
+const HAND_Y = 600
+const HAND_CENTER_X = 640
+const CARD_WIDTH = 140
 
-var card_being_dragged
-var drag_offset = Vector2.ZERO
-var screen_size
-var is_hovering_on_card = false
-var player_hand_reference
-func _ready() -> void:
-	screen_size = get_viewport_rect().size
-	player_hand_reference = $"../PlayerHand"
+var cards = []
+var selected_cards = []
+var card_scene = preload("res://Scenes/Card.tscn")
 
-func _process(delta):
-	if card_being_dragged:
-		var target_pos = get_global_mouse_position() + drag_offset
-		
-		var card_size = Vector2.ZERO
-		if card_being_dragged.has_node("Sprite2D"):
-			var sprite = card_being_dragged.get_node("Sprite2D")
-			card_size = sprite.texture.get_size() * card_being_dragged.scale / 2.0
+func _ready():
+	var deck = get_node("../Deck")
+	if deck == null:
+		push_error("Deck not found. Make sure it's named 'Deck' and is a sibling of PlayerHand.")
+		return
 
-		target_pos.x = clamp(target_pos.x, card_size.x, screen_size.x - card_size.x)
-		target_pos.y = clamp(target_pos.y, card_size.y, screen_size.y - card_size.y)
+	for i in range(HAND_COUNT):
+		var card_data = deck.draw_card()
+		if card_data == null:
+			break
 
-		card_being_dragged.global_position = target_pos
+		var card = _create_card_from_data(card_data)
+		cards.append(card)
 
+	_update_card_positions()
 
-func _input(event):
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			var card = raycast_check_for_card()
-			if card:
-				start_drag(card)
-		else:
-			if card_being_dragged:
-				finish_drag()
-
-
-func start_drag(card):
-	card_being_dragged = card
-	drag_offset = card.global_position - get_global_mouse_position()
-	card.scale = Vector2(1, 1)
-
-
-func finish_drag():
-	card_being_dragged.scale = Vector2(1.05, 1.05)
-	var card_slot_found = raycast_check_for_card_slot()
-	
-	if card_slot_found and "card_in_slot" in card_slot_found and not card_slot_found.card_in_slot:
-		player_hand_reference.remove_card_from_hand(card_being_dragged)
-		card_being_dragged.position = card_slot_found.position
-		card_being_dragged.get_node("Area2D/CollisionShape2D").disabled = true
-		card_slot_found.card_in_slot = true
+	var discard_button = get_node("../DiscardButton")
+	if discard_button == null:
+		push_error("DiscardButton not found.")
 	else:
-		player_hand_reference.add_card_to_hand(card_being_dragged)
-	card_being_dragged = null
+		discard_button.disabled = true
+		discard_button.pressed.connect(_on_discard_pressed)
 
+func _create_card_from_data(card_data):
+	var card = card_scene.instantiate()
+	add_child(card)
+	card.position = Vector2(-500, HAND_Y)
+	card.card_data = card_data
 
-func connect_card_signals(card):
-	card.connect("hovered", on_hovered_over_card)
-	card.connect("hovered_off", on_hovered_off_card)
-
-
-func on_hovered_over_card(card):
-	if not is_hovering_on_card:
-		is_hovering_on_card = true
-		highlight_card(card, true)
-
-
-func on_hovered_off_card(card):
-	if not card_being_dragged:
-		highlight_card(card, false)
-		var new_card_hovered = raycast_check_for_card()
-		if new_card_hovered:
-			highlight_card(new_card_hovered, true)
-		else:
-			is_hovering_on_card = false
-
-
-func highlight_card(card, hovered):
-	if hovered:
-		card.scale = Vector2(1.05, 1.05)
-		card.z_index = 2
+	var sprite = card.get_node("Sprite")
+	var tex = load(card_data.sprite_path)
+	if tex:
+		sprite.texture = tex
 	else:
-		card.scale = Vector2(1, 1)
-		card.z_index = 1 
+		print("⚠️ Missing texture:", card_data.sprite_path)
 
+	card.pressed.connect(_on_card_pressed)
+	card.hovered.connect(_on_card_hovered)
+	card.hovered_off.connect(_on_card_hovered_off)
+	return card
 
-func raycast_check_for_card_slot():
-	var space_state = get_world_2d().direct_space_state
-	var parameters = PhysicsPointQueryParameters2D.new()
-	parameters.position = get_global_mouse_position()
-	parameters.collide_with_areas = true
-	parameters.collision_mask = COLLISION_MASK_CARD_SLOT
-	var result = space_state.intersect_point(parameters)
-	if result.size() > 0:
-		var collider = result[0].collider
-		return collider.get_parent()  # this should be your CardSlot node
-	return null
+func _on_card_pressed(card):
+	if card in selected_cards:
+		selected_cards.erase(card)
+	else:
+		if selected_cards.size() < MAX_SELECTION:
+			selected_cards.append(card)
 
+	_update_card_positions()
+	_update_discard_button_state()
 
-func raycast_check_for_card():
-	var space_state = get_world_2d().direct_space_state
-	var parameters = PhysicsPointQueryParameters2D.new()
-	parameters.position = get_global_mouse_position()
-	parameters.collide_with_areas = true
-	parameters.collision_mask = COLLISION_MASK_CARD
-	var result = space_state.intersect_point(parameters)
-	if result.size() > 0:
-		return get_card_with_highest_z_index(result)
-	return null
+func _on_card_hovered(card):
+	if card not in selected_cards:
+		_animate_scale(card, Vector2(1.05, 1.05))
 
+func _on_card_hovered_off(card):
+	if card not in selected_cards:
+		_animate_scale(card, Vector2(1, 1))
 
-func get_card_with_highest_z_index(cards):
-	var highest_z_card = cards[0].collider.get_parent()
-	var highest_z_index = highest_z_card.z_index
+func _update_card_positions():
+	var total_width = (cards.size() - 1) * CARD_WIDTH
+	for i in range(cards.size()):
+		var card = cards[i]
+		var base_x = HAND_CENTER_X + i * CARD_WIDTH - total_width / 2
+		var target_pos = Vector2(base_x, HAND_Y)
 
-	for i in range(1, cards.size()):
-		var current_card = cards[i].collider.get_parent()
-		if current_card.z_index > highest_z_index:
-			highest_z_card = current_card
-			highest_z_index = current_card.z_index
-	return highest_z_card
+		if card in selected_cards:
+			target_pos.y -= 30
+			_animate_scale(card, Vector2(1.15, 1.15))
+		else:
+			_animate_scale(card, Vector2(1, 1))
+
+		_animate_position(card, target_pos)
+
+func _animate_position(card, target_pos):
+	var tween = create_tween()
+	tween.tween_property(card, "position", target_pos, 0.3)
+
+func _animate_scale(card, target_scale):
+	var tween = create_tween()
+	tween.tween_property(card, "scale", target_scale, 0.2)
+
+func _update_discard_button_state():
+	var discard_button = get_node("../DiscardButton")
+	discard_button.disabled = selected_cards.is_empty()
+
+func _on_discard_pressed():
+	if selected_cards.is_empty():
+		return
+
+	var deck = get_node("../Deck")
+	if deck == null:
+		push_error("Deck not found.")
+		return
+
+	var num_to_replace = selected_cards.size()
+
+	for card in selected_cards:
+		cards.erase(card)
+		card.queue_free()
+
+	selected_cards.clear()
+
+	for i in range(num_to_replace):
+		var card_data = deck.draw_card()
+		if card_data == null:
+			break
+		var new_card = _create_card_from_data(card_data)
+		cards.append(new_card)
+
+	_update_card_positions()
+	_update_discard_button_state()

@@ -1,69 +1,127 @@
 extends Node2D
 
 const HAND_COUNT = 5
-const CARD_SCENE_PATH = "res://Scenes/Card.tscn"
-const CARD_WIDTH = 200
-const HAND_Y_POSITION = 978
-const HAND_CENTER_X = 941
+const MAX_SELECTION = 2
+const HAND_Y = 600
+const HAND_CENTER_X = 640
+const CARD_WIDTH = 140
 
-var player_hand = []
-var center_screen_x
-var card_width = 200
+var cards = []
+var selected_cards = []
+var card_scene = preload("res://Scenes/Card.tscn")
 
-func _ready() -> void:
-	var card_scene = preload(CARD_SCENE_PATH)
+func _ready():
+	var deck = get_node("../Deck")
+	if deck == null:
+		push_error("Deck not found. Make sure it's named 'Deck' and is a sibling of PlayerHand.")
+		return
+
 	for i in range(HAND_COUNT):
-		var new_card = card_scene.instantiate()
-		new_card.name = "Card"
-		new_card.scale = Vector2.ONE
-		
-		var card_manager = get_node("../CardManager")
-		card_manager.add_child(new_card)
-		
-		#var pos_x = calculate_card_position(i)
-		#var pos_y = HAND_Y_POSITION
-		#var new_position = Vector2(pos_x, pos_y)
-		
-		new_card.position = Vector2(941, -200)
-		add_card_to_hand(new_card)
-		
-		print("Card #", i, "position set to:", new_card.position, " Global:", new_card.global_position)
-	
+		var card_data = deck.draw_card()
+		if card_data == null:
+			break
 
+		var card = _create_card_from_data(card_data)
+		cards.append(card)
 
+	_update_card_positions()
 
-func add_card_to_hand(card):
-	if card not in player_hand:
-		player_hand.insert(0, card)
-		set_card_width()
-		update_hand_positions()
+	var discard_button = get_node("../DiscardButton")
+	if discard_button == null:
+		push_error("DiscardButton not found.")
 	else:
-		animate_card_to_position(card, card.hand_position)
+		discard_button.disabled = true
+		discard_button.pressed.connect(_on_discard_pressed)
 
+func _create_card_from_data(card_data):
+	var card = card_scene.instantiate()
+	add_child(card)
+	card.position = Vector2(-500, HAND_Y)
+	card.card_data = card_data
 
-func update_hand_positions():
-	for i in range(player_hand.size()):
-		var new_position = Vector2(calculate_card_position(i), HAND_Y_POSITION)
-		var card = player_hand[i]
-		print("Card position:", card.position, " global:", card.global_position)
-		card.hand_position = new_position
-		animate_card_to_position(card, new_position)
+	var sprite = card.get_node("CardImage")
+	if sprite == null:
+		print("❌ CardImage node not found in card scene!")
+	else:
+		var tex = load(card_data.sprite_path)
+		if tex:
+			sprite.texture = tex
+		else:
+			print("⚠️ Missing texture:", card_data.sprite_path)
 
-func calculate_card_position(index):
-	var total_width = (HAND_COUNT - 1) * card_width
-	var x_offset = HAND_CENTER_X + index * card_width - total_width / 2
-	print("Calculated X for card ", index, ":", x_offset)
-	return x_offset
+	card.pressed.connect(_on_card_pressed)
+	card.hovered.connect(_on_card_hovered)
+	card.hovered_off.connect(_on_card_hovered_off)
+	return card
 
-func animate_card_to_position(card, new_position):
-	var  tween = get_tree().create_tween()
-	tween.tween_property(card, "position", new_position, 0.5)
-	
-	
-func set_card_width():
-	card_width = max(99 - (HAND_COUNT * 10),100)
+func _on_card_pressed(card):
+	if card in selected_cards:
+		selected_cards.erase(card)
+	else:
+		if selected_cards.size() < MAX_SELECTION:
+			selected_cards.append(card)
 
-func remove_card_from_hand(card):
-	if card in player_hand:
-		player_hand.erase(card)
-		update_hand_positions()
+	_update_card_positions()
+	_update_discard_button_state()
+
+func _on_card_hovered(card):
+	if card not in selected_cards:
+		_animate_scale(card, Vector2(1.05, 1.05))
+
+func _on_card_hovered_off(card):
+	if card not in selected_cards:
+		_animate_scale(card, Vector2(1, 1))
+
+func _update_card_positions():
+	var total_width = (cards.size() - 1) * CARD_WIDTH
+	for i in range(cards.size()):
+		var card = cards[i]
+		var base_x = HAND_CENTER_X + i * CARD_WIDTH - total_width / 2
+		var target_pos = Vector2(base_x, HAND_Y)
+
+		if card in selected_cards:
+			target_pos.y -= 30
+			_animate_scale(card, Vector2(1.15, 1.15))
+		else:
+			_animate_scale(card, Vector2(1, 1))
+
+		_animate_position(card, target_pos)
+
+func _animate_position(card, target_pos):
+	var tween = create_tween()
+	tween.tween_property(card, "position", target_pos, 0.3)
+
+func _animate_scale(card, target_scale):
+	var tween = create_tween()
+	tween.tween_property(card, "scale", target_scale, 0.2)
+
+func _update_discard_button_state():
+	var discard_button = get_node("../DiscardButton")
+	discard_button.disabled = selected_cards.is_empty()
+
+func _on_discard_pressed():
+	if selected_cards.is_empty():
+		return
+
+	var deck = get_node("../Deck")
+	if deck == null:
+		push_error("Deck not found.")
+		return
+
+	var num_to_replace = selected_cards.size()
+
+	for card in selected_cards:
+		cards.erase(card)
+		card.queue_free()
+
+	selected_cards.clear()
+
+	for i in range(num_to_replace):
+		var card_data = deck.draw_card()
+		if card_data == null:
+			break
+		var new_card = _create_card_from_data(card_data)
+		cards.append(new_card)
+
+	_update_card_positions()
+	_update_discard_button_state()

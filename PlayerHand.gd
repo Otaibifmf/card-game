@@ -1,6 +1,6 @@
 extends Node2D
 
-const HAND_COUNT = 8
+const HAND_COUNT = 5
 const CARD_SCENE_PATH = "res://Scenes/Card.tscn"
 const CARD_WIDTH = 200
 const HAND_Y_POSITION = 978
@@ -8,7 +8,7 @@ const HAND_CENTER_X = 941
 
 var player_hand = []
 var center_screen_x
-var card_width = 200 
+var card_width = 200
 
 func _ready() -> void:
 	var card_scene = preload(CARD_SCENE_PATH)
@@ -61,7 +61,7 @@ func animate_card_to_position(card, new_position):
 	
 	
 func set_card_width():
-	card_width = max(250 - (HAND_COUNT * 10),100)
+	card_width = max(99 - (HAND_COUNT * 10),100)
 
 func remove_card_from_hand(card):
 	if card in player_hand:

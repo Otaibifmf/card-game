@@ -1,16 +1,18 @@
-[gd_scene load_steps=8 format=3 uid="uid://dbbqi3ckwt7wi"]
+[gd_scene load_steps=9 format=3 uid="uid://dbbqi3ckwt7wi"]
 
+[ext_resource type="Script" path="res://Main.gd" id="1_jp81x"]
 [ext_resource type="Script" path="res://PlayerHand.gd" id="2_5e2s4"]
 [ext_resource type="Script" path="res://Deck.gd" id="3_0e6w1"]
 [ext_resource type="Texture2D" uid="uid://cdwc25o7jhebe" path="res://assets/hitnum table.png" id="3_1re3l"]
-[ext_resource type="Texture2D" uid="uid://bh47nw62anop5" path="res://ace_of_clubs.png" id="4_iml1s"]
 [ext_resource type="Texture2D" uid="uid://c60c82tu2shwu" path="res://assets/red_backing.png" id="5_sysse"]
 [ext_resource type="Script" path="res://BotHand.gd" id="6_yibso"]
+[ext_resource type="Script" path="res://TurnManager.gd" id="7_bm22m"]
 
 [sub_resource type="Theme" id="Theme_mu1qb"]
 
 [node name="Main" type="Node2D"]
 position = Vector2(1, 0)
+script = ExtResource("1_jp81x")
 
 [node name="Background" type="TextureRect" parent="."]
 z_index = -1
@@ -18,6 +20,9 @@ z_as_relative = false
 offset_right = 1920.0
 offset_bottom = 1080.0
 texture = ExtResource("3_1re3l")
+
+[node name="TurnManager" type="Node" parent="."]
+script = ExtResource("7_bm22m")
 
 [node name="Deck" type="Node" parent="."]
 script = ExtResource("3_0e6w1")
@@ -39,12 +44,6 @@ offset_left = 760.0
 offset_top = 562.0
 offset_right = 898.0
 offset_bottom = 675.0
-
-[node name="AceOfClubs" type="Sprite2D" parent="."]
-visible = false
-position = Vector2(576, 840)
-scale = Vector2(2, 2)
-texture = ExtResource("4_iml1s")
 
 [node name="RedBacking" type="Sprite2D" parent="."]
 position = Vector2(314, 552)

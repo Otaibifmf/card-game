@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dbbqi3ckwt7wi"]
+[gd_scene load_steps=4 format=3 uid="uid://dbbqi3ckwt7wi"]
 
 [ext_resource type="Script" path="res://PlayerHand.gd" id="2_5e2s4"]
 [ext_resource type="Script" path="res://Deck.gd" id="3_0e6w1"]
+[ext_resource type="Texture2D" uid="uid://cdwc25o7jhebe" path="res://assets/hitnum table.png" id="3_1re3l"]
 
 [node name="Main" type="Node2D"]
 position = Vector2(1, 0)
@@ -14,10 +15,10 @@ position = Vector2(482, 322)
 script = ExtResource("2_5e2s4")
 
 [node name="DiscardButton" type="Button" parent="."]
-offset_left = 585.0
-offset_top = 793.0
-offset_right = 655.0
-offset_bottom = 863.0
+offset_left = 295.0
+offset_top = 773.0
+offset_right = 384.0
+offset_bottom = 858.0
 text = "Discard"
 
 [node name="WinLabel" type="Label" parent="."]
@@ -26,3 +27,10 @@ offset_left = 760.0
 offset_top = 562.0
 offset_right = 898.0
 offset_bottom = 675.0
+
+[node name="Background" type="TextureRect" parent="."]
+z_index = -1
+z_as_relative = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("3_1re3l")

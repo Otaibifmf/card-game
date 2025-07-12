@@ -2,8 +2,8 @@ extends Node2D
 
 const HAND_COUNT = 5
 const MAX_SELECTION = 2
-const HAND_Y = 600
-const HAND_CENTER_X = 640
+const HAND_Y = 500 #600
+const HAND_CENTER_X = 540 #640
 const CARD_WIDTH = 140
 
 const POSSIBLE_TARGETS = [22, 23, 24, 25, 26, 27, 28, 29, 30]

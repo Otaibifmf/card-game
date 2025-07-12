@@ -1,11 +1,23 @@
-[gd_scene load_steps=4 format=3 uid="uid://dbbqi3ckwt7wi"]
+[gd_scene load_steps=8 format=3 uid="uid://dbbqi3ckwt7wi"]
 
 [ext_resource type="Script" path="res://PlayerHand.gd" id="2_5e2s4"]
 [ext_resource type="Script" path="res://Deck.gd" id="3_0e6w1"]
 [ext_resource type="Texture2D" uid="uid://cdwc25o7jhebe" path="res://assets/hitnum table.png" id="3_1re3l"]
+[ext_resource type="Texture2D" uid="uid://bh47nw62anop5" path="res://ace_of_clubs.png" id="4_iml1s"]
+[ext_resource type="Texture2D" uid="uid://c60c82tu2shwu" path="res://assets/red_backing.png" id="5_sysse"]
+[ext_resource type="Script" path="res://BotHand.gd" id="6_yibso"]
+
+[sub_resource type="Theme" id="Theme_mu1qb"]
 
 [node name="Main" type="Node2D"]
 position = Vector2(1, 0)
+
+[node name="Background" type="TextureRect" parent="."]
+z_index = -1
+z_as_relative = false
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("3_1re3l")
 
 [node name="Deck" type="Node" parent="."]
 script = ExtResource("3_0e6w1")
@@ -28,9 +40,25 @@ offset_top = 562.0
 offset_right = 898.0
 offset_bottom = 675.0
 
-[node name="Background" type="TextureRect" parent="."]
-z_index = -1
-z_as_relative = false
-offset_right = 40.0
-offset_bottom = 40.0
-texture = ExtResource("3_1re3l")
+[node name="AceOfClubs" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(576, 840)
+scale = Vector2(2, 2)
+texture = ExtResource("4_iml1s")
+
+[node name="RedBacking" type="Sprite2D" parent="."]
+position = Vector2(314, 552)
+scale = Vector2(2, 2)
+texture = ExtResource("5_sysse")
+
+[node name="HandSumLabel" type="Label" parent="."]
+offset_left = 134.0
+offset_top = 518.0
+offset_right = 194.0
+offset_bottom = 553.0
+theme = SubResource("Theme_mu1qb")
+theme_type_variation = &"HeaderLarge"
+text = "Sum: 0"
+
+[node name="BotHand" type="Node2D" parent="."]
+script = ExtResource("6_yibso")

@@ -2,8 +2,8 @@ extends Node2D
 
 const HAND_COUNT = 5
 const MAX_SELECTION = 2
-const HAND_Y = 500 #600
-const HAND_CENTER_X = 540 #640
+const HAND_Y = 520 #500 #600
+const HAND_CENTER_X = 470 #540 #640
 const CARD_WIDTH = 140
 
 const POSSIBLE_TARGETS = [22, 23, 24, 25, 26, 27, 28, 29, 30]
@@ -45,7 +45,7 @@ func _ready():
 		cards.append(card)
 
 	_update_card_positions()
-
+	update_hand_sum_label()
 	var discard_button = get_node("../DiscardButton")
 	if discard_button == null:
 		push_error("DiscardButton not found.")
@@ -62,6 +62,7 @@ func _create_card_from_data(card_data):
 	var card = card_scene.instantiate()
 	add_child(card)
 	card.position = Vector2(-500, HAND_Y)
+	#card.scale = Vector2(2, 2)
 	card.card_data = card_data
 
 	var sprite = card.get_node("CardImage")
@@ -86,6 +87,7 @@ func _on_card_pressed(card):
 		if selected_cards.size() < MAX_SELECTION:
 			selected_cards.append(card)
 
+	update_hand_sum_label()
 	_update_card_positions()
 	_update_discard_button_state()
 
@@ -172,6 +174,7 @@ func _on_discard_pressed():
 
 	_update_card_positions()
 	_update_discard_button_state()
+	update_hand_sum_label()
 
 	var hand_total = calculate_hand_total()
 	print("🧮 DEBUG Hand total:", hand_total, " Target:", TARGET_TOTAL)
@@ -184,3 +187,10 @@ func _on_discard_pressed():
 			win_label.visible = true
 	else:
 		print("Keep discarding to reach", TARGET_TOTAL)
+
+
+func update_hand_sum_label():
+	var sum = calculate_hand_total()
+	var label = get_node("../HandSumLabel")
+	if label:
+		label.text = "Sum: " + str(sum)

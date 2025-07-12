@@ -20,6 +20,7 @@ func _ready():
 	turn_manager = get_node("../TurnManager")
 	
 	turn_manager.bot_turn_started.connect(_on_bot_turn_started)
+
 	var player_hand = get_node("../PlayerHand")
 	if player_hand:
 		TARGET_TOTAL = player_hand.TARGET_TOTAL
@@ -32,32 +33,37 @@ func _ready():
 	_update_card_positions()
 
 func _on_bot_turn_started():
-	can_play = true
 	if has_won:
 		return
 
+	can_play = true
 	print("🤖 Bot turn begins")
+
 	await get_tree().create_timer(1.2).timeout
 
-	while can_play and calculate_total() != TARGET_TOTAL:
-		print("🤖 Bot total:", calculate_total(), "Trying to reach", TARGET_TOTAL)
-		_discard_random_cards()
-		await get_tree().create_timer(1.2).timeout
+	print("🤖 Bot total before:", calculate_total(), "Target:", TARGET_TOTAL)
 
-		if calculate_total() == TARGET_TOTAL:
-			var win_label = get_node("../WinLabel")
-			if win_label:
-				win_label.text = "🤖 Bot Wins!"
-				win_label.visible = true
-			has_won = true
-			return  # Bot won, stop playing
+	# Bot makes one discard per turn
+	_discard_random_cards()
 
-	# Bot done, end turn and give turn back to player
+	await get_tree().create_timer(1.2).timeout
+
+	var total = calculate_total()
+	print("🤖 Bot total after:", total)
+
+	if total == TARGET_TOTAL:
+		var win_label = get_node("../WinLabel")
+		if win_label:
+			win_label.text = "🤖 Bot Wins!"
+			win_label.visible = true
+		has_won = true
+		can_play = false
+		print("🤖 Bot won. Ending game.")
+		return
+
 	can_play = false
+	print("👉 Ending Bot Turn")
 	turn_manager.end_bot_turn()
-
-func _on_player_turn_started():
-	can_play = false
 
 func _create_hidden_card(card_data):
 	var card = card_scene.instantiate()
@@ -114,7 +120,6 @@ func calculate_total() -> int:
 		"ace": 1, "two": 2, "three": 3, "four": 4, "five": 5,
 		"six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10
 	}
-
 	for card in cards:
 		var name_str = card.card_data.get("name", "")
 		var parts = name_str.split(" ")
@@ -122,5 +127,4 @@ func calculate_total() -> int:
 			var rank = parts[0].to_lower()
 			if rank_values.has(rank):
 				total += rank_values[rank]
-
 	return total

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dbbqi3ckwt7wi"]
+[gd_scene load_steps=10 format=3 uid="uid://dbbqi3ckwt7wi"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1_jp81x"]
 [ext_resource type="Script" path="res://PlayerHand.gd" id="2_5e2s4"]
@@ -9,6 +9,8 @@
 [ext_resource type="Script" path="res://TurnManager.gd" id="7_bm22m"]
 
 [sub_resource type="Theme" id="Theme_mu1qb"]
+
+[sub_resource type="Theme" id="Theme_uubuy"]
 
 [node name="Main" type="Node2D"]
 position = Vector2(1, 0)
@@ -51,13 +53,22 @@ scale = Vector2(2, 2)
 texture = ExtResource("5_sysse")
 
 [node name="HandSumLabel" type="Label" parent="."]
-offset_left = 134.0
-offset_top = 518.0
-offset_right = 194.0
-offset_bottom = 553.0
+offset_left = 123.0
+offset_top = 585.0
+offset_right = 214.0
+offset_bottom = 624.0
 theme = SubResource("Theme_mu1qb")
 theme_type_variation = &"HeaderLarge"
 text = "Sum: 0"
 
 [node name="BotHand" type="Node2D" parent="."]
 script = ExtResource("6_yibso")
+
+[node name="TargetLabel" type="Label" parent="."]
+offset_left = 117.0
+offset_top = 476.0
+offset_right = 235.0
+offset_bottom = 515.0
+theme = SubResource("Theme_uubuy")
+theme_type_variation = &"HeaderLarge"
+text = "Target: 0"

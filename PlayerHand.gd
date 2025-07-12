@@ -9,7 +9,7 @@ const CARD_WIDTH = 140
 var cards = []
 var selected_cards = []
 var card_scene = preload("res://Scenes/Card.tscn")
-var TARGET_TOTAL = 25  # or set dynamically
+var TARGET_TOTAL = 25
 var can_play = false
 var deck = null
 var turn_manager = null
@@ -18,7 +18,8 @@ func _ready():
 	deck = get_node("../Deck")
 	turn_manager = get_node("../TurnManager")
 
-	turn_manager.player_turn_started.connect(_on_player_turn_started)
+	if turn_manager:
+		turn_manager.player_turn_started.connect(_on_player_turn_started)
 
 	for i in range(HAND_COUNT):
 		var card_data = deck.draw_card()
@@ -38,11 +39,7 @@ func _ready():
 
 func _on_player_turn_started():
 	can_play = true
-	print("Player's turn started")
-
-func _on_bot_turn_started():
-	can_play = false
-	print("Player's turn disabled")
+	print("🧑 Player's turn started - you can now play.")
 
 func _create_card_from_data(card_data):
 	var card = card_scene.instantiate()
@@ -63,12 +60,15 @@ func _create_card_from_data(card_data):
 
 func _on_card_pressed(card):
 	if not can_play:
+		print("⛔ You tried to select a card during bot's turn!")
 		return
+
 	if card in selected_cards:
 		selected_cards.erase(card)
 	else:
 		if selected_cards.size() < MAX_SELECTION:
 			selected_cards.append(card)
+
 	_update_card_positions()
 	_update_discard_button_state()
 
@@ -92,6 +92,7 @@ func _update_card_positions():
 		else:
 			_animate_scale(card, Vector2(1, 1))
 		_animate_position(card, target_pos)
+	update_target_label()
 	update_hand_total_label()
 
 func _animate_position(card, target_pos):
@@ -109,7 +110,9 @@ func _update_discard_button_state():
 
 func _on_discard_pressed():
 	if not can_play:
+		print("⛔ Discard pressed during bot's turn!")
 		return
+
 	if selected_cards.is_empty():
 		return
 
@@ -130,7 +133,6 @@ func _on_discard_pressed():
 	_update_card_positions()
 	_update_discard_button_state()
 
-	# Check for win
 	if calculate_total() == TARGET_TOTAL:
 		var win_label = get_node("../WinLabel")
 		if win_label:
@@ -139,9 +141,10 @@ func _on_discard_pressed():
 		can_play = false
 		return
 
-	# End player turn and pass to bot
 	can_play = false
-	turn_manager.end_player_turn()
+	print("👉 Ending Player Turn")
+	if turn_manager:
+		turn_manager.end_player_turn()
 
 func calculate_total() -> int:
 	var total = 0
@@ -162,3 +165,8 @@ func update_hand_total_label():
 	var label = get_node("../HandSumLabel")
 	if label:
 		label.text = "Total: " + str(calculate_total())
+		
+func update_target_label():
+	var label = get_node("../TargetLabel")
+	if label:
+		label.text = "Target: " + str(TARGET_TOTAL)

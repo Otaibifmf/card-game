@@ -5,6 +5,8 @@ const HAND_Y = 230
 const HAND_CENTER_X = 950
 const CARD_WIDTH = 140
 
+signal bot_card_pressed(card)
+
 var card_scene = preload("res://Scenes/Card.tscn")
 var back_texture = preload("res://assets/red_backing.png")
 
@@ -43,7 +45,6 @@ func _on_bot_turn_started():
 
 	print("🤖 Bot total before:", calculate_total(), "Target:", TARGET_TOTAL)
 
-	# Bot makes one discard per turn
 	_discard_random_cards()
 
 	await get_tree().create_timer(1.2).timeout
@@ -77,10 +78,15 @@ func _create_hidden_card(card_data):
 
 	var area = card.get_node("Area2D")
 	if area:
-		area.set_deferred("monitoring", false)
-		area.set_deferred("input_pickable", false)
+		area.set_deferred("monitoring", true)
+		area.set_deferred("input_pickable", true)
 
+	card.pressed.connect(_on_card_pressed)
 	return card
+
+func _on_card_pressed(card):
+	print("🟦 Bot card pressed signal emitted:", card.name)
+	emit_signal("bot_card_pressed", card)
 
 func _update_card_positions():
 	var total_width = (cards.size() - 1) * CARD_WIDTH
@@ -108,7 +114,12 @@ func _discard_random_cards():
 	for i in range(count_to_discard):
 		var card_data = deck.draw_card()
 		if card_data == null:
-			break
+			var win_label = get_node("../WinLabel")
+			if win_label:
+				win_label.text = "❌ Deck is empty – Game Over!"
+				win_label.visible = true
+			can_play = false
+			return
 		var new_card = _create_hidden_card(card_data)
 		cards.append(new_card)
 

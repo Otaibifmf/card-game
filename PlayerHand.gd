@@ -8,18 +8,28 @@ const CARD_WIDTH = 140
 
 var cards = []
 var selected_cards = []
+var selected_bot_cards = []
 var card_scene = preload("res://Scenes/Card.tscn")
+var TARGET_TOTAL_VALUES = [22, 23, 24, 25, 26, 27, 28, 29, 30]
 var TARGET_TOTAL = 25
 var can_play = false
+var trade_mode = false
 var deck = null
 var turn_manager = null
 
 func _ready():
+	randomize()
+	TARGET_TOTAL = TARGET_TOTAL_VALUES[randi() % TARGET_TOTAL_VALUES.size()]
+	
 	deck = get_node("../Deck")
 	turn_manager = get_node("../TurnManager")
 
 	if turn_manager:
 		turn_manager.player_turn_started.connect(_on_player_turn_started)
+
+	var bot_hand = get_node("../BotHand")
+	if bot_hand:
+		bot_hand.bot_card_pressed.connect(_on_bot_card_selected)
 
 	for i in range(HAND_COUNT):
 		var card_data = deck.draw_card()
@@ -35,7 +45,15 @@ func _ready():
 		discard_button.disabled = true
 		discard_button.pressed.connect(_on_discard_pressed)
 
+	var trade_button = get_node("../TradeButton")
+	if trade_button:
+		print("Trade button found")
+		trade_button.pressed.connect(toggle_trade_mode)
+	else:
+		print("Trade button NOT found.")
+
 	update_hand_total_label()
+	update_target_label()
 
 func _on_player_turn_started():
 	can_play = true
@@ -63,10 +81,15 @@ func _on_card_pressed(card):
 		print("⛔ You tried to select a card during bot's turn!")
 		return
 
-	if card in selected_cards:
-		selected_cards.erase(card)
+	if trade_mode:
+		if card in selected_cards:
+			selected_cards.erase(card)
+		elif selected_cards.size() < MAX_SELECTION:
+			selected_cards.append(card)
 	else:
-		if selected_cards.size() < MAX_SELECTION:
+		if card in selected_cards:
+			selected_cards.erase(card)
+		elif selected_cards.size() < MAX_SELECTION:
 			selected_cards.append(card)
 
 	_update_card_positions()
@@ -92,6 +115,7 @@ func _update_card_positions():
 		else:
 			_animate_scale(card, Vector2(1, 1))
 		_animate_position(card, target_pos)
+
 	update_target_label()
 	update_hand_total_label()
 
@@ -106,7 +130,7 @@ func _animate_scale(card, target_scale):
 func _update_discard_button_state():
 	var discard_button = get_node("../DiscardButton")
 	if discard_button:
-		discard_button.disabled = selected_cards.is_empty()
+		discard_button.disabled = selected_cards.is_empty() or trade_mode
 
 func _on_discard_pressed():
 	if not can_play:
@@ -126,7 +150,12 @@ func _on_discard_pressed():
 	for i in range(num_to_replace):
 		var card_data = deck.draw_card()
 		if card_data == null:
-			break
+			var win_label = get_node("../WinLabel")
+			if win_label:
+				win_label.text = "❌ Deck is empty – Game Over!"
+				win_label.visible = true
+			can_play = false
+			return
 		var new_card = _create_card_from_data(card_data)
 		cards.append(new_card)
 
@@ -165,8 +194,54 @@ func update_hand_total_label():
 	var label = get_node("../HandSumLabel")
 	if label:
 		label.text = "Total: " + str(calculate_total())
-		
+
 func update_target_label():
 	var label = get_node("../TargetLabel")
 	if label:
 		label.text = "Target: " + str(TARGET_TOTAL)
+
+func toggle_trade_mode():
+	trade_mode = not trade_mode
+	selected_cards.clear()
+	selected_bot_cards.clear()
+	_update_card_positions()
+	_update_discard_button_state()
+	print("🟢 Trade mode is", trade_mode)
+
+func _on_bot_card_selected(card):
+	if not can_play or not trade_mode:
+		return
+
+	if card in selected_bot_cards:
+		selected_bot_cards.erase(card)
+	elif selected_bot_cards.size() < MAX_SELECTION:
+		selected_bot_cards.append(card)
+
+	_check_and_execute_trade()
+
+func _check_and_execute_trade():
+	if selected_cards.size() != selected_bot_cards.size():
+		return
+
+	for i in range(selected_cards.size()):
+		var my_card = selected_cards[i]
+		var bot_card = selected_bot_cards[i]
+
+		# Swap card_data
+		var temp_data = my_card.card_data
+		my_card.card_data = bot_card.card_data
+		bot_card.card_data = temp_data
+
+		# Update texture for player's card
+		var sprite = my_card.get_node("CardImage")
+		if sprite:
+			sprite.texture = load(my_card.card_data.sprite_path)
+
+	# Bot card texture stays hidden
+
+	selected_cards.clear()
+	selected_bot_cards.clear()
+	trade_mode = false
+
+	print("🔁 Trade completed!")
+	_update_card_positions()

@@ -72,3 +72,10 @@ offset_bottom = 515.0
 theme = SubResource("Theme_uubuy")
 theme_type_variation = &"HeaderLarge"
 text = "Target: 0"
+
+[node name="TradeButton" type="Button" parent="."]
+offset_left = 1477.0
+offset_top = 777.0
+offset_right = 1559.0
+offset_bottom = 849.0
+text = "Trade"

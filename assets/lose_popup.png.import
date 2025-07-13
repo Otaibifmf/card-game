@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ckut5tq1yu6pf"
-path="res://.godot/imported/lose popup.png-e79c1189267bf988fe1fc0a99732d706.ctex"
+path="res://.godot/imported/lose_popup.png-74b9014510cc18cf5fad80920f46ed37.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/lose popup.png"
-dest_files=["res://.godot/imported/lose popup.png-e79c1189267bf988fe1fc0a99732d706.ctex"]
+source_file="res://assets/lose_popup.png"
+dest_files=["res://.godot/imported/lose_popup.png-74b9014510cc18cf5fad80920f46ed37.ctex"]
 
 [params]
 

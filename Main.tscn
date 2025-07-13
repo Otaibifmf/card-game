@@ -39,15 +39,6 @@ script = ExtResource("3_0e6w1")
 position = Vector2(482, 322)
 script = ExtResource("2_5e2s4")
 
-[node name="WinLabel" type="Label" parent="."]
-visible = false
-offset_left = 672.0
-offset_top = 660.0
-offset_right = 810.0
-offset_bottom = 773.0
-theme_override_fonts/font = ExtResource("6_uer5g")
-theme_override_font_sizes/font_size = 100
-
 [node name="RedBacking" type="Sprite2D" parent="."]
 position = Vector2(314, 552)
 scale = Vector2(2, 2)
@@ -95,3 +86,17 @@ offset_bottom = 839.0
 scale = Vector2(2, 2)
 texture_normal = ExtResource("11_3swvn")
 texture_pressed = ExtResource("12_750ol")
+
+[node name="WinPopup" type="TextureRect" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 890.0
+offset_top = 520.0
+offset_right = 930.0
+offset_bottom = 560.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch_mode = 5

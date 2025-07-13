@@ -150,14 +150,15 @@ func _on_discard_pressed():
 	for i in range(num_to_replace):
 		var card_data = deck.draw_card()
 		if card_data == null:
-			var win_label = get_node("../WinLabel")
-			if win_label:
-				win_label.text = "❌ Deck is empty – Game Over!"
-				win_label.visible = true
+			var popup = get_node("../WinPopup")
+			if popup:
+				popup.texture = load("res://assets/lose_popup.png")
+				popup.visible = true
 			can_play = false
 			if turn_manager:
 				turn_manager.game_over = true
 			return
+
 		var new_card = _create_card_from_data(card_data)
 		cards.append(new_card)
 
@@ -165,10 +166,11 @@ func _on_discard_pressed():
 	_update_discard_button_state()
 
 	if calculate_total() == TARGET_TOTAL:
-		var win_label = get_node("../WinLabel")
-		if win_label:
-			win_label.text = "🎉 You Win!"
-			win_label.visible = true
+		var win_popup = get_node("../WinPopup")
+		if win_popup:
+			win_popup.texture = load("res://assets/win_popup.png")
+			win_popup.visible = true
+
 		can_play = false
 		if turn_manager:
 			turn_manager.game_over = true

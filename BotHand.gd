@@ -35,7 +35,7 @@ func _ready():
 	_update_card_positions()
 
 func _on_bot_turn_started():
-	if has_won:
+	if has_won or turn_manager.game_over:
 		return
 
 	can_play = true
@@ -59,6 +59,8 @@ func _on_bot_turn_started():
 			win_label.visible = true
 		has_won = true
 		can_play = false
+		if turn_manager:
+			turn_manager.game_over = true
 		print("🤖 Bot won. Ending game.")
 		return
 
@@ -119,6 +121,8 @@ func _discard_random_cards():
 				win_label.text = "❌ Deck is empty – Game Over!"
 				win_label.visible = true
 			can_play = false
+			if turn_manager:
+				turn_manager.game_over = true
 			return
 		var new_card = _create_hidden_card(card_data)
 		cards.append(new_card)

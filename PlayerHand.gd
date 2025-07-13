@@ -47,10 +47,7 @@ func _ready():
 
 	var trade_button = get_node("../TradeButton")
 	if trade_button:
-		print("Trade button found")
 		trade_button.pressed.connect(toggle_trade_mode)
-	else:
-		print("Trade button NOT found.")
 
 	update_hand_total_label()
 	update_target_label()
@@ -58,7 +55,6 @@ func _ready():
 func _on_player_turn_started():
 	can_play = true
 	print("🧑 Player's turn started - you can now play.")
-
 	var trade_button = get_node("../TradeButton")
 	if trade_button:
 		trade_button.disabled = false
@@ -159,6 +155,8 @@ func _on_discard_pressed():
 				win_label.text = "❌ Deck is empty – Game Over!"
 				win_label.visible = true
 			can_play = false
+			if turn_manager:
+				turn_manager.game_over = true
 			return
 		var new_card = _create_card_from_data(card_data)
 		cards.append(new_card)
@@ -172,6 +170,8 @@ func _on_discard_pressed():
 			win_label.text = "🎉 You Win!"
 			win_label.visible = true
 		can_play = false
+		if turn_manager:
+			turn_manager.game_over = true
 		return
 
 	can_play = false
@@ -231,17 +231,13 @@ func _check_and_execute_trade():
 		var my_card = selected_cards[i]
 		var bot_card = selected_bot_cards[i]
 
-		# Swap card_data
 		var temp_data = my_card.card_data
 		my_card.card_data = bot_card.card_data
 		bot_card.card_data = temp_data
 
-		# Update texture for player's card
 		var sprite = my_card.get_node("CardImage")
 		if sprite:
 			sprite.texture = load(my_card.card_data.sprite_path)
-
-	# Bot card texture stays hidden
 
 	selected_cards.clear()
 	selected_bot_cards.clear()
@@ -251,8 +247,16 @@ func _check_and_execute_trade():
 
 	print("🔁 Trade completed!")
 
-	# ✅ End player's turn after trading
-	can_play = false
+	if calculate_total() == TARGET_TOTAL:
+		var win_label = get_node("../WinLabel")
+		if win_label:
+			win_label.text = "🎉 You Win!"
+			win_label.visible = true
+		can_play = false
+		if turn_manager:
+			turn_manager.game_over = true
+	else:
+		can_play = false
 
 	var trade_button = get_node("../TradeButton")
 	if trade_button:

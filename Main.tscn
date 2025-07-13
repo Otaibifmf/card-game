@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dbbqi3ckwt7wi"]
+[gd_scene load_steps=15 format=3 uid="uid://dbbqi3ckwt7wi"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1_jp81x"]
 [ext_resource type="Script" path="res://PlayerHand.gd" id="2_5e2s4"]
@@ -8,6 +8,10 @@
 [ext_resource type="FontFile" uid="uid://dnwjbwoxnb63" path="res://assets/fonts/GrandcasinoRegular.otf" id="6_uer5g"]
 [ext_resource type="Script" path="res://BotHand.gd" id="6_yibso"]
 [ext_resource type="Script" path="res://TurnManager.gd" id="7_bm22m"]
+[ext_resource type="Texture2D" uid="uid://ymkshgaes8c6" path="res://assets/Discard_Button.png" id="9_kintf"]
+[ext_resource type="Texture2D" uid="uid://76vu05xeloiv" path="res://assets/Dark_Discard_Button.png" id="10_p7jqx"]
+[ext_resource type="Texture2D" uid="uid://c4tygjby0dmrt" path="res://assets/trade_button.png" id="11_3swvn"]
+[ext_resource type="Texture2D" uid="uid://b73r221o0nx8c" path="res://assets/Dark_Trade_Button.png" id="12_750ol"]
 
 [sub_resource type="Theme" id="Theme_mu1qb"]
 
@@ -20,7 +24,8 @@ script = ExtResource("1_jp81x")
 [node name="Background" type="TextureRect" parent="."]
 z_index = -1
 z_as_relative = false
-offset_right = 1920.0
+offset_left = -1.0
+offset_right = 1919.0
 offset_bottom = 1080.0
 texture = ExtResource("3_1re3l")
 
@@ -33,13 +38,6 @@ script = ExtResource("3_0e6w1")
 [node name="PlayerHand" type="Node2D" parent="."]
 position = Vector2(482, 322)
 script = ExtResource("2_5e2s4")
-
-[node name="DiscardButton" type="Button" parent="."]
-offset_left = 295.0
-offset_top = 773.0
-offset_right = 384.0
-offset_bottom = 858.0
-text = "Discard"
 
 [node name="WinLabel" type="Label" parent="."]
 visible = false
@@ -80,9 +78,20 @@ theme_override_fonts/font = ExtResource("6_uer5g")
 theme_override_font_sizes/font_size = 40
 text = "Target: 0"
 
-[node name="TradeButton" type="Button" parent="."]
-offset_left = 1477.0
-offset_top = 777.0
-offset_right = 1559.0
-offset_bottom = 849.0
-text = "Trade"
+[node name="DiscardButton" type="TextureButton" parent="."]
+offset_left = 265.0
+offset_top = 800.0
+offset_right = 312.0
+offset_bottom = 850.0
+scale = Vector2(2, 2)
+texture_normal = ExtResource("9_kintf")
+texture_pressed = ExtResource("10_p7jqx")
+
+[node name="TradeButton" type="TextureButton" parent="."]
+offset_left = 1521.0
+offset_top = 790.0
+offset_right = 1561.0
+offset_bottom = 839.0
+scale = Vector2(2, 2)
+texture_normal = ExtResource("11_3swvn")
+texture_pressed = ExtResource("12_750ol")

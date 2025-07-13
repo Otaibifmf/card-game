@@ -197,7 +197,7 @@ func calculate_total() -> int:
 func update_hand_total_label():
 	var label = get_node("../HandSumLabel")
 	if label:
-		label.text = "Total: " + str(calculate_total())
+		label.text = "Sum: " + str(calculate_total())
 
 func update_target_label():
 	var label = get_node("../TargetLabel")

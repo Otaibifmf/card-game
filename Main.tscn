@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://dbbqi3ckwt7wi"]
+[gd_scene load_steps=11 format=3 uid="uid://dbbqi3ckwt7wi"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1_jp81x"]
 [ext_resource type="Script" path="res://PlayerHand.gd" id="2_5e2s4"]
 [ext_resource type="Script" path="res://Deck.gd" id="3_0e6w1"]
 [ext_resource type="Texture2D" uid="uid://cdwc25o7jhebe" path="res://assets/hitnum table.png" id="3_1re3l"]
 [ext_resource type="Texture2D" uid="uid://c60c82tu2shwu" path="res://assets/red_backing.png" id="5_sysse"]
+[ext_resource type="FontFile" uid="uid://dnwjbwoxnb63" path="res://assets/fonts/GrandcasinoRegular.otf" id="6_uer5g"]
 [ext_resource type="Script" path="res://BotHand.gd" id="6_yibso"]
 [ext_resource type="Script" path="res://TurnManager.gd" id="7_bm22m"]
 
@@ -42,10 +43,12 @@ text = "Discard"
 
 [node name="WinLabel" type="Label" parent="."]
 visible = false
-offset_left = 760.0
-offset_top = 562.0
-offset_right = 898.0
-offset_bottom = 675.0
+offset_left = 672.0
+offset_top = 660.0
+offset_right = 810.0
+offset_bottom = 773.0
+theme_override_fonts/font = ExtResource("6_uer5g")
+theme_override_font_sizes/font_size = 100
 
 [node name="RedBacking" type="Sprite2D" parent="."]
 position = Vector2(314, 552)
@@ -53,24 +56,28 @@ scale = Vector2(2, 2)
 texture = ExtResource("5_sysse")
 
 [node name="HandSumLabel" type="Label" parent="."]
-offset_left = 123.0
-offset_top = 585.0
-offset_right = 214.0
-offset_bottom = 624.0
+offset_left = 124.0
+offset_top = 547.0
+offset_right = 233.0
+offset_bottom = 602.0
 theme = SubResource("Theme_mu1qb")
 theme_type_variation = &"HeaderLarge"
+theme_override_fonts/font = ExtResource("6_uer5g")
+theme_override_font_sizes/font_size = 40
 text = "Sum: 0"
 
 [node name="BotHand" type="Node2D" parent="."]
 script = ExtResource("6_yibso")
 
 [node name="TargetLabel" type="Label" parent="."]
-offset_left = 117.0
-offset_top = 476.0
-offset_right = 235.0
-offset_bottom = 515.0
+offset_left = 73.0
+offset_top = 499.0
+offset_right = 232.0
+offset_bottom = 554.0
 theme = SubResource("Theme_uubuy")
 theme_type_variation = &"HeaderLarge"
+theme_override_fonts/font = ExtResource("6_uer5g")
+theme_override_font_sizes/font_size = 40
 text = "Target: 0"
 
 [node name="TradeButton" type="Button" parent="."]

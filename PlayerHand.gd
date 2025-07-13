@@ -49,7 +49,7 @@ func _ready():
 	if trade_button:
 		trade_button.pressed.connect(toggle_trade_mode)
 
-	update_hand_total_label()
+	update_hand_sum_label()
 	update_target_label()
 
 func _on_player_turn_started():
@@ -117,7 +117,7 @@ func _update_card_positions():
 		_animate_position(card, target_pos)
 
 	update_target_label()
-	update_hand_total_label()
+	update_hand_sum_label()
 
 func _animate_position(card, target_pos):
 	var tween = create_tween()
@@ -194,7 +194,7 @@ func calculate_total() -> int:
 				total += rank_values[rank]
 	return total
 
-func update_hand_total_label():
+func update_hand_sum_label():
 	var label = get_node("../HandSumLabel")
 	if label:
 		label.text = "Sum: " + str(calculate_total())

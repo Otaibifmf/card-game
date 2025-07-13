@@ -1,8 +1,8 @@
 extends TextureButton
 
+
 func _ready():
-	# Always visible
-	visible = true
+	visible = false  
 	pressed.connect(_on_pressed)
 
 func _on_pressed():

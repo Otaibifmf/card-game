@@ -49,15 +49,12 @@ func _ready():
 	if trade_button:
 		trade_button.pressed.connect(toggle_trade_mode)
 
-	update_hand_sum_label()
+	update_hand_total_label()
 	update_target_label()
 
 func _on_player_turn_started():
 	can_play = true
 	print("🧑 Player's turn started - you can now play.")
-	var trade_button = get_node("../TradeButton")
-	if trade_button:
-		trade_button.disabled = false
 
 func _create_card_from_data(card_data):
 	var card = card_scene.instantiate()
@@ -81,16 +78,10 @@ func _on_card_pressed(card):
 		print("⛔ You tried to select a card during bot's turn!")
 		return
 
-	if trade_mode:
-		if card in selected_cards:
-			selected_cards.erase(card)
-		elif selected_cards.size() < MAX_SELECTION:
-			selected_cards.append(card)
-	else:
-		if card in selected_cards:
-			selected_cards.erase(card)
-		elif selected_cards.size() < MAX_SELECTION:
-			selected_cards.append(card)
+	if card in selected_cards:
+		selected_cards.erase(card)
+	elif selected_cards.size() < MAX_SELECTION:
+		selected_cards.append(card)
 
 	_update_card_positions()
 	_update_discard_button_state()
@@ -117,7 +108,7 @@ func _update_card_positions():
 		_animate_position(card, target_pos)
 
 	update_target_label()
-	update_hand_sum_label()
+	update_hand_total_label()
 
 func _animate_position(card, target_pos):
 	var tween = create_tween()
@@ -133,11 +124,7 @@ func _update_discard_button_state():
 		discard_button.disabled = selected_cards.is_empty() or trade_mode
 
 func _on_discard_pressed():
-	if not can_play:
-		print("⛔ Discard pressed during bot's turn!")
-		return
-
-	if selected_cards.is_empty():
+	if not can_play or selected_cards.is_empty():
 		return
 
 	var num_to_replace = selected_cards.size()
@@ -150,15 +137,11 @@ func _on_discard_pressed():
 	for i in range(num_to_replace):
 		var card_data = deck.draw_card()
 		if card_data == null:
-			var popup = get_node("../WinPopup")
-			if popup:
-				popup.texture = load("res://assets/lose_popup.png")
-				popup.visible = true
+			_show_loss_popup()
 			can_play = false
 			if turn_manager:
 				turn_manager.game_over = true
 			return
-
 		var new_card = _create_card_from_data(card_data)
 		cards.append(new_card)
 
@@ -166,18 +149,13 @@ func _on_discard_pressed():
 	_update_discard_button_state()
 
 	if calculate_total() == TARGET_TOTAL:
-		var win_popup = get_node("../WinPopup")
-		if win_popup:
-			win_popup.texture = load("res://assets/win_popup.png")
-			win_popup.visible = true
-
+		_show_win_popup()
 		can_play = false
 		if turn_manager:
 			turn_manager.game_over = true
 		return
 
 	can_play = false
-	print("👉 Ending Player Turn")
 	if turn_manager:
 		turn_manager.end_player_turn()
 
@@ -196,7 +174,7 @@ func calculate_total() -> int:
 				total += rank_values[rank]
 	return total
 
-func update_hand_sum_label():
+func update_hand_total_label():
 	var label = get_node("../HandSumLabel")
 	if label:
 		label.text = "Sum: " + str(calculate_total())
@@ -212,7 +190,6 @@ func toggle_trade_mode():
 	selected_bot_cards.clear()
 	_update_card_positions()
 	_update_discard_button_state()
-	print("🟢 Trade mode is", trade_mode)
 
 func _on_bot_card_selected(card):
 	if not can_play or not trade_mode:
@@ -245,25 +222,34 @@ func _check_and_execute_trade():
 	selected_bot_cards.clear()
 	trade_mode = false
 	_update_card_positions()
-	_update_discard_button_state()
-
-	print("🔁 Trade completed!")
 
 	if calculate_total() == TARGET_TOTAL:
-		var win_label = get_node("../WinLabel")
-		if win_label:
-			win_label.text = "🎉 You Win!"
-			win_label.visible = true
+		_show_win_popup()
 		can_play = false
 		if turn_manager:
 			turn_manager.game_over = true
-	else:
-		can_play = false
+		return
 
-	var trade_button = get_node("../TradeButton")
-	if trade_button:
-		trade_button.disabled = true
-
-	print("👉 Ending Player Turn after trade")
+	can_play = false
 	if turn_manager:
 		turn_manager.end_player_turn()
+
+func _show_win_popup():
+	var popup = get_node("../WinPopup")
+	if popup:
+		popup.texture = load("res://assets/win_popup.png")
+		popup.visible = true
+
+	var restart_button = get_node("../RestartButton")
+	if restart_button:
+		restart_button.visible = true
+
+func _show_loss_popup():
+	var popup = get_node("../WinPopup")
+	if popup:
+		popup.texture = load("res://assets/lose_popup.png")
+		popup.visible = true
+
+	var restart_button = get_node("../RestartButton")
+	if restart_button:
+		restart_button.visible = true

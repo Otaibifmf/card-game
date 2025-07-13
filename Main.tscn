@@ -12,8 +12,8 @@
 [ext_resource type="Texture2D" uid="uid://76vu05xeloiv" path="res://assets/Dark_Discard_Button.png" id="10_p7jqx"]
 [ext_resource type="Texture2D" uid="uid://c4tygjby0dmrt" path="res://assets/trade_button.png" id="11_3swvn"]
 [ext_resource type="Texture2D" uid="uid://b73r221o0nx8c" path="res://assets/Dark_Trade_Button.png" id="12_750ol"]
+[ext_resource type="Texture2D" uid="uid://mbup0q7kj715" path="res://assets/Restart_Button.png" id="13_3xuw4"]
 [ext_resource type="Script" path="res://RestartButton.gd" id="13_08l86"]
-[ext_resource type="Texture2D" uid="uid://bh47nw62anop5" path="res://ace_of_clubs.png" id="13_jkgg1"]
 
 [sub_resource type="Theme" id="Theme_mu1qb"]
 
@@ -104,9 +104,10 @@ grow_vertical = 2
 stretch_mode = 5
 
 [node name="RestartButton" type="TextureButton" parent="."]
-offset_left = 78.0
-offset_top = 894.0
-offset_right = 196.0
-offset_bottom = 973.0
-texture_normal = ExtResource("13_jkgg1")
+offset_left = 784.0
+offset_top = 766.0
+offset_right = 1406.0
+offset_bottom = 915.0
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("13_3xuw4")
 script = ExtResource("13_08l86")

@@ -20,7 +20,6 @@ var can_play = false
 func _ready():
 	deck = get_node("../Deck")
 	turn_manager = get_node("../TurnManager")
-	
 	turn_manager.bot_turn_started.connect(_on_bot_turn_started)
 
 	var player_hand = get_node("../PlayerHand")
@@ -35,39 +34,28 @@ func _ready():
 	_update_card_positions()
 
 func _on_bot_turn_started():
-	if has_won or turn_manager.game_over:
+	if has_won:
 		return
 
 	can_play = true
-	print("🤖 Bot turn begins")
-
 	await get_tree().create_timer(1.2).timeout
-
-	print("🤖 Bot total before:", calculate_total(), "Target:", TARGET_TOTAL)
 
 	_discard_random_cards()
 
 	await get_tree().create_timer(1.2).timeout
 
 	var total = calculate_total()
-	print("🤖 Bot total after:", total)
-
 	if total == TARGET_TOTAL:
-		var win_popup = get_node("../WinPopup")
-		if win_popup:
-			win_popup.texture = load("res://assets/lose_popup.png")
-			win_popup.visible = true
-
 		has_won = true
 		can_play = false
+		_show_loss_popup()
 		if turn_manager:
 			turn_manager.game_over = true
-		print("🤖 Bot won. Ending game.")
 		return
 
 	can_play = false
-	print("👉 Ending Bot Turn")
-	turn_manager.end_bot_turn()
+	if turn_manager:
+		turn_manager.end_bot_turn()
 
 func _create_hidden_card(card_data):
 	var card = card_scene.instantiate()
@@ -88,7 +76,6 @@ func _create_hidden_card(card_data):
 	return card
 
 func _on_card_pressed(card):
-	print("🟦 Bot card pressed signal emitted:", card.name)
 	emit_signal("bot_card_pressed", card)
 
 func _update_card_positions():
@@ -117,15 +104,11 @@ func _discard_random_cards():
 	for i in range(count_to_discard):
 		var card_data = deck.draw_card()
 		if card_data == null:
-			var popup = get_node("../WinPopup")
-			if popup:
-				popup.texture = load("res://assets/lose_popup.png")
-				popup.visible = true
 			can_play = false
+			_show_loss_popup()
 			if turn_manager:
 				turn_manager.game_over = true
 			return
-
 		var new_card = _create_hidden_card(card_data)
 		cards.append(new_card)
 
@@ -145,3 +128,13 @@ func calculate_total() -> int:
 			if rank_values.has(rank):
 				total += rank_values[rank]
 	return total
+
+func _show_loss_popup():
+	var popup = get_node("../WinPopup")
+	if popup:
+		popup.texture = load("res://assets/lose_popup.png")
+		popup.visible = true
+
+	var restart_button = get_node("../RestartButton")
+	if restart_button:
+		restart_button.visible = true

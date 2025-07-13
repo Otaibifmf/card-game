@@ -59,6 +59,10 @@ func _on_player_turn_started():
 	can_play = true
 	print("🧑 Player's turn started - you can now play.")
 
+	var trade_button = get_node("../TradeButton")
+	if trade_button:
+		trade_button.disabled = false
+
 func _create_card_from_data(card_data):
 	var card = card_scene.instantiate()
 	add_child(card)
@@ -242,6 +246,18 @@ func _check_and_execute_trade():
 	selected_cards.clear()
 	selected_bot_cards.clear()
 	trade_mode = false
+	_update_card_positions()
+	_update_discard_button_state()
 
 	print("🔁 Trade completed!")
-	_update_card_positions()
+
+	# ✅ End player's turn after trading
+	can_play = false
+
+	var trade_button = get_node("../TradeButton")
+	if trade_button:
+		trade_button.disabled = true
+
+	print("👉 Ending Player Turn after trade")
+	if turn_manager:
+		turn_manager.end_player_turn()

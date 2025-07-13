@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://dbbqi3ckwt7wi"]
+[gd_scene load_steps=17 format=3 uid="uid://dbbqi3ckwt7wi"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1_jp81x"]
 [ext_resource type="Script" path="res://PlayerHand.gd" id="2_5e2s4"]
@@ -12,6 +12,8 @@
 [ext_resource type="Texture2D" uid="uid://76vu05xeloiv" path="res://assets/Dark_Discard_Button.png" id="10_p7jqx"]
 [ext_resource type="Texture2D" uid="uid://c4tygjby0dmrt" path="res://assets/trade_button.png" id="11_3swvn"]
 [ext_resource type="Texture2D" uid="uid://b73r221o0nx8c" path="res://assets/Dark_Trade_Button.png" id="12_750ol"]
+[ext_resource type="Script" path="res://RestartButton.gd" id="13_08l86"]
+[ext_resource type="Texture2D" uid="uid://bh47nw62anop5" path="res://ace_of_clubs.png" id="13_jkgg1"]
 
 [sub_resource type="Theme" id="Theme_mu1qb"]
 
@@ -100,3 +102,11 @@ offset_bottom = 560.0
 grow_horizontal = 2
 grow_vertical = 2
 stretch_mode = 5
+
+[node name="RestartButton" type="TextureButton" parent="."]
+offset_left = 78.0
+offset_top = 894.0
+offset_right = 196.0
+offset_bottom = 973.0
+texture_normal = ExtResource("13_jkgg1")
+script = ExtResource("13_08l86")
